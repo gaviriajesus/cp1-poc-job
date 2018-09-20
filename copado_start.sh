@@ -4,14 +4,14 @@ echo "[c1p document job] invoked copado job"
 
 CSV_FILE_NAME=${FILE_NAME:-opportunities.csv}
 
-notify_status "Retrieving_data_from_Salesforce" "20" 
+notify_status "Retrieving data from Salesforce" "20" 
 echo "[c1p document job] Retrieving data"
 # get all the closed-won opportunities
 curl -sS "${COPADO_SF_SERVICE_ENDPOINT}query?q=SELECT+Id,+Name,+StageName,+AccountId,+Account.Name,+(select+Id,+Pricebookentry.product2.name+from+OpportunityLineItems)from+opportunity+WHERE+StageName+=+'Closed+Won'" \
 -H 'Authorization: Bearer '"$COPADO_SF_AUTH_HEADER"'' \
 | jq -c -r '["OpportunityId","OpportunityName","OpportunityStageName","AccountId","AccountName","ProductId","ProductName"], (.records[] | [.Id, .Name, .StageName, .AccountId, .Account.Name, .OpportunityLineItems.records[0].Id, .OpportunityLineItems.records[0].PricebookEntry.Product2.Name ]) | @csv' > $CSV_FILE_NAME
 
-notify_status "Retrieving_attachments" "40"
+notify_status "Retrieving attachments" "40"
 # download all attachment files for the opportunities
 echo "[c1p document job] Downloading files"
 mkdir attachments
